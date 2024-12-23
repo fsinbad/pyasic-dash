@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "pyasic-dash"
+version = "0.1.0"
+description = ""
+authors = ["John-Paul Compagnone <jpcompagnone@epicblockchain.io>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+pyasic = "^0.67.2"
+nicegui = "^2.9.0"
+numpy = "^2.2.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
