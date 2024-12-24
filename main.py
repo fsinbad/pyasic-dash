@@ -9,7 +9,8 @@ from pyasic.device.algorithm.hashrate.unit.base import GenericUnit
 from pyasic.network import MinerNetwork
 from pydantic import ValidationError
 
-from data import MinerFullTableData, MinerTableData
+from pyasic_dash.data import MinerFullTableData, MinerTableData
+from pyasic_dash.settings import config
 
 settings.update("network_ping_retries", 2)
 settings.update("get_data_retries", 2)
@@ -17,12 +18,6 @@ settings.update("get_data_retries", 2)
 updating = False
 miners_g = []
 refresh_rate_g = 5
-
-with open("servers.toml", "rb") as f:
-    tomldata = tomllib.load(f)
-
-ranges_to_scan_g = tomldata["range"]
-
 
 dark = ui.dark_mode()
 dark.enable()
@@ -46,15 +41,13 @@ def handle_theme_change(e: events.ValueChangeEventArguments):
 
 async def scan_miners():
     global miners_g
-    global ranges_to_scan_g
     miners_g = []
-    for range in ranges_to_scan_g:
-        network = MinerNetwork.from_subnet(range["iprange"])
-        print(range)
+    for r in config.range:
+        network = MinerNetwork.from_subnet(r["iprange"])
         miners = await network.scan()
-        print("Found {} miners".format(len(miners)))
+        print(f"Found {len(miners)} miners")
         for each in miners:
-            miners_g.append((range["nickname"], each))
+            miners_g.append((r["nickname"], each))
         time.sleep(1)
 
 
@@ -180,33 +173,29 @@ with ui.row().style("align-items: center;"):
 
 
 async def delete_range():
-    global ranges_to_scan_g
     new_range = []
     for each2 in rangestable.selected:
-        for each in ranges_to_scan_g:
+        for each in config.range:
             if each2 == each:
                 print("Found it")
             else:
                 new_range.append(each)
 
-    ranges_to_scan_g = new_range
-    rangestable.rows = ranges_to_scan_g
+    config.range = new_range
+    rangestable.rows = config.range
     rangestable.update()
 
 
 async def reset_range():
-    global ranges_to_scan_g
     with open("servers.toml", "rb") as f:
         tomldata = tomllib.load(f)
-    ranges_to_scan_g = tomldata["range"]
-    rangestable.rows = ranges_to_scan_g
+    config.range = tomldata["range"]
+    rangestable.rows = config.range
     rangestable.update()
 
 
 with ui.row().style("align-items: center;"):
-    rangestable = ui.table(
-        rows=ranges_to_scan_g, selection="single", row_key="nickname"
-    )
+    rangestable = ui.table(rows=config.range, selection="single", row_key="nickname")
     with ui.column().style("align-items: center;"):
         ui.button("Delete Range", on_click=delete_range)
         ui.button("Reset Ranges from File", on_click=reset_range)
