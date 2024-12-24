@@ -11,6 +11,7 @@ class MinerTableData(BaseModel):
     ip: str
     status: bool = False
     model: str = "Unknown"
+    make: str = "Unknown"
     firmware: str | None = Field(serialization_alias="fw", default=None)
     temperature: int | None = Field(serialization_alias="temp", default=None)
     hashrate: AlgoHashRateType | None = None
@@ -75,6 +76,7 @@ class MinerTableData(BaseModel):
             ip=m_data.ip,
             status=m_data.is_mining and float(m_data.hashrate) > 0,
             model=m_data.model,
+            make=m_data.make,
             firmware=m_data.firmware,
             temperature=m_data.temperature_avg,
             hashrate=m_data.hashrate,
@@ -96,7 +98,7 @@ class MinerTableData(BaseModel):
 
 
 class MinerFullTableData(BaseModel):
-    data: list[MinerTableData]
+    data: list[MinerTableData] = Field(default_factory=list)
 
     @computed_field  # type: ignore[misc]
     @property

@@ -8,10 +8,16 @@ from pydantic_settings import (
 )
 
 
+class Location(BaseSettings):
+    name: str
+    subnet: str
+
+
 class PyASICDashSettings(BaseSettings):
     title: str = "PyASIC Dash"
 
-    range: list[dict] = Field(default_factory=list)
+    locations: list[Location] = Field(default_factory=list)
+    interval: int = 5
 
     @classmethod
     def settings_customise_sources(
@@ -23,7 +29,7 @@ class PyASICDashSettings(BaseSettings):
         file_secret_settings: PydanticBaseSettingsSource,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
         root_dir = Path(__file__).parent.resolve()
-        toml_file = root_dir.parent.joinpath("servers.toml")
+        toml_file = root_dir.parent.joinpath("settings.toml")
         settings_sources = [
             env_settings,
             TomlConfigSettingsSource(settings_cls, toml_file),
