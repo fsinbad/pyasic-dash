@@ -2,4 +2,4 @@ title = "PyASIC Dash"
 ### Add a location/nickname and a iprange eg. 10.10.0.0/24
 [[range]]
 nickname = "Bay 1"
-iprange = "10.5.0.0/24"
+iprange = "192.168.86.1/24"

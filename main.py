@@ -3,10 +3,13 @@ import time
 import tomllib
 from datetime import datetime
 
-import numpy as np
 from nicegui import events, ui
 from pyasic import settings
+from pyasic.device.algorithm.hashrate.unit.base import GenericUnit
 from pyasic.network import MinerNetwork
+from pydantic import ValidationError
+
+from data import MinerFullTableData, MinerTableData
 
 settings.update("network_ping_retries", 2)
 settings.update("get_data_retries", 2)
@@ -48,13 +51,10 @@ async def scan_miners():
     for range in ranges_to_scan_g:
         network = MinerNetwork.from_subnet(range["iprange"])
         print(range)
-        try:
-            miners = await network.scan()
-            print("Found {} miners".format(len(miners)))
-            for each in miners:
-                miners_g.append((range["nickname"], each))
-        except Exception as error:
-            print("An exception occurred:", error, location, range)
+        miners = await network.scan()
+        print("Found {} miners".format(len(miners)))
+        for each in miners:
+            miners_g.append((range["nickname"], each))
         time.sleep(1)
 
 
@@ -77,88 +77,28 @@ async def update():
         updating = False
         grid.options["rowData"] = []
         grid.update()
+        raise error
 
 
 async def find_miners():
     global t_hashrate_txt
     miner_data = []
-    t_hashrate = 0.0
     await scan_miners()
     for location, each in miners_g:
+        async with asyncio.timeout(5):
+            data = await each.get_data()
         try:
-            miner = {
-                "location": location,
-                "worker": None,
-                "status": None,
-                "last share": None,
-                "earnings": None,
-                "ip": "",
-                "hostname": "",
-                "model": "",
-                "fw": "",
-                "temp": None,
-                "hashrate": None,
-                "perf": None,
-                "rpower": None,
-                "eff": None,
-                "hbs": 0,
-                "hb0": None,
-                "hb1": None,
-                "hb2": None,
-                "voltage": None,
-            }
-            async with asyncio.timeout(5):
-                pools = await each.get_pools()
-                user = pools[0].user.split(".")[-1]
-            async with asyncio.timeout(5):
-                data = await each.get_data()
-            miner["worker"] = user
-            miner["ip"] = f"<a href=http://{data.ip}>{data.ip}</a>"
-            miner["hostname"] = data.hostname
-            miner["fw"] = data.fw_ver
-            miner["model"] = data.model
-            miner["temp"] = data.temperature_avg
-            miner["hashrate"] = round(float(data.hashrate), 2)
-            miner["eff"] = data.efficiency
-            t_hashrate += miner["hashrate"]
-            voltages = []
-            if data.expected_hashrate != None:
-                if float(data.expected_hashrate) > 0:
-                    miner["perf"] = (
-                        round(float(data.hashrate) / float(data.expected_hashrate), 2)
-                        * 100
-                    )
-            if data.wattage is not None:
-                miner["rpower"] = round(float(data.wattage), 2)
-            for hb in data["hashboards"]:
-                if hb["slot"] == 0:
-                    if hb.hashrate is not None:
-                        miner["hb0"] = round(float(hb.hashrate), 2)
-                        miner["hbs"] += 1
-                    if hb.voltage is not None:
-                        voltages.append(hb.voltage)
-                if hb["slot"] == 1:
-                    if hb.hashrate is not None:
-                        miner["hb1"] = round(float(hb.hashrate), 2)
-                        miner["hbs"] += 1
-                    if hb.voltage is not None:
-                        voltages.append(hb.voltage)
-                if hb["slot"] == 2:
-                    if hb.hashrate is not None:
-                        miner["hb2"] = round(float(hb.hashrate), 2)
-                        miner["hbs"] += 1
-                    if hb.voltage is not None:
-                        voltages.append(hb.voltage)
-            if len(voltages) > 0:
-                miner["voltage"] = np.max(voltages)
-            miner_data.append(miner)
-        except Exception as error:
-            print(each)
-            print("An exception occurred:", error)
-
-    data_sorted = sorted(miner_data, key=lambda d: d["hostname"], reverse=True)
-    grid.options["rowData"] = data_sorted
-    thashrate.set_text(f"Total Hashrate: {round(t_hashrate,2)} TH/s")
+            miner_data.append(
+                MinerTableData.from_miner_data(m_data=data, location=location)
+            )
+        except ValidationError as e:
+            print(f"Failed to init miner data for {each.ip}: {e}")
+    data_sorted = sorted(miner_data, key=lambda d: d.hostname or "", reverse=True)
+    table_data = MinerFullTableData(data=data_sorted)
+    thashrate.set_text(
+        f"Total Hashrate: {round(table_data.total_hashrate.into(GenericUnit.TH),2)} TH/s"
+    )
+    grid.options["rowData"] = table_data.model_dump(by_alias=True)["data"]
     grid.update()
     return data_sorted
 
