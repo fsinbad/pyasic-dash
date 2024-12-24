@@ -16,7 +16,6 @@ class MinerTableSection:
         self.refresh_timer = ui.timer(config.interval * 60, self.update)
         self.updating = False
         self.dialog = ui.dialog().props("fullWidth").props("fullHeight")
-        self.ip_selected = "10.6.0.121"
         self.data: MinerFullTableData = MinerFullTableData()
 
         with ui.row().classes("w-full justify-between"):
