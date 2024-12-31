@@ -13,7 +13,7 @@ LOGGER = logging.getLogger(__name__)
 
 class MinerTableSection:
     def __init__(self):
-        self.refresh_timer = ui.timer(config.interval * 60, self.update)
+        self.refresh_timer = ui.timer(config.interval, self.update)
         self.updating = False
         self.dialog = ui.dialog().props("fullWidth").props("fullHeight")
         self.data: MinerFullTableData = MinerFullTableData()
@@ -26,7 +26,7 @@ class MinerTableSection:
                         "Stop Auto Refresh", on_click=self.refresh_timer.cancel
                     ).classes("h-auto mt-auto")
                     ui.number(
-                        label="Interval (mins)",
+                        label="Interval (secs)",
                         value=config.interval,
                         on_change=self.update_refresh_interval,
                     ).classes("h-auto")
@@ -159,7 +159,8 @@ class MinerTableSection:
         )
 
     def update_refresh_interval(self, e: events.ValueChangeEventArguments):
-        self.refresh_timer.interval = e.value * 60
+        print(f"Updating refresh timing to {e.value}")
+        self.refresh_timer.interval = e.value
 
     def open_dialog(self, args):
         ip = args["value"]
@@ -167,7 +168,7 @@ class MinerTableSection:
         with self.dialog, ui.card():
             with ui.row().classes("w-full justify-between"):
                 with ui.column():
-                    ui.label(f"IP: {ip}").classes("text-xl")
+                    ui.label(ip).classes("text-xl")
                 with ui.column():
                     ui.button(
                         "Close", icon="close", on_click=self.dialog.close

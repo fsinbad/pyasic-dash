@@ -1,6 +1,6 @@
 title = "PyASIC Dash"
-### Update interval in minutes
-interval = 5
+### Update interval in seconds
+interval = 30
 ### Add a location/nickname and an iprange eg. 10.10.0.0/24
 [[locations]]
 name = "Bay 1"
