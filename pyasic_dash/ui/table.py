@@ -181,17 +181,26 @@ class MinerTableSection:
 
 async def get_miners_data() -> MinerFullTableData:
     data = []
-    locations_data = await asyncio.gather(
-        *[get_location_miners_data(location) for location in config.locations]
-    )
-    for location_data in locations_data:
-        data.extend(location_data)
+    print(f"locations:{config.locations}")
+
+    batch_size = 3  
+
+    for i in range(0, len(config.locations), batch_size):
+        batch = config.locations[i:i+batch_size]
+        batch_results = await asyncio.gather(
+            *[get_location_miners_data(loc) for loc in batch]
+        )
+        for location_data in batch_results:
+            data.extend(location_data)
+
     return MinerFullTableData(data=data)
 
 
 async def get_location_miners_data(location: Location) -> list[MinerTableData]:
     miners = await pyasic.MinerNetwork.from_subnet(location.subnet).scan()
+    print(f"location:{location},miners:{miners}")
     data = await asyncio.gather(*[m.get_data() for m in miners])
+    # print(f"data:{data}")
     return [
         MinerTableData.from_miner_data(m_data=d, location=location.name) for d in data
     ]
