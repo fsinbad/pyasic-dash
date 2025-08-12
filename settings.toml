@@ -1,7 +1,103 @@
 title = "PyASIC Dash"
 ### Update interval in seconds
-interval = 30
+interval = 180
 ### Add a location/nickname and an iprange eg. 10.10.0.0/24
 [[locations]]
-name = "Bay 1"
-subnet = "192.168.86.1/24"
+name = "1"
+subnet = "10.1.0.0/24"
+[[locations]]
+name = "2"
+subnet = "10.2.0.0/24"
+[[locations]]
+name = "3"
+subnet = "10.3.0.0/24"
+[[locations]]
+name = "4"
+subnet = "10.4.0.0/24"
+[[locations]]
+name = "5"
+subnet = "10.5.0.0/24"
+[[locations]]
+name = "5"
+subnet = "10.5.0.0/24"
+[[locations]]
+name = "6"
+subnet = "10.6.0.0/24"
+[[locations]]
+name = "7"
+subnet = "10.7.0.0/24"
+[[locations]]
+name = "8"
+subnet = "10.8.0.0/24"
+[[locations]]
+name = "9"
+subnet = "10.9.0.0/24"
+[[locations]]
+name = "10"
+subnet = "10.10.0.0/24"
+[[locations]]
+name = "11"
+subnet = "10.11.0.0/24"
+[[locations]]
+name = "12"
+subnet = "10.12.0.0/24"
+[[locations]]
+name = "13"
+subnet = "10.13.0.0/24"
+[[locations]]
+name = "14"
+subnet = "10.14.0.0/24"
+[[locations]]
+name = "15"
+subnet = "10.15.0.0/24"
+[[locations]]
+name = "16"
+subnet = "10.16.0.0/24"
+[[locations]]
+name = "17"
+subnet = "10.17.0.0/24"
+[[locations]]
+name = "18"
+subnet = "10.18.0.0/24"
+[[locations]]
+name = "19"
+subnet = "10.19.0.0/24"
+[[locations]]
+name = "20"
+subnet = "10.20.0.0/24"
+[[locations]]
+name = "21"
+subnet = "10.21.0.0/24"
+[[locations]]
+name = "22"
+subnet = "10.22.0.0/24"
+[[locations]]
+name = "23"
+subnet = "10.23.0.0/24"
+[[locations]]
+name = "24"
+subnet = "10.24.0.0/24"
+[[locations]]
+name = "25"
+subnet = "10.25.0.0/24"
+[[locations]]
+name = "26"
+subnet = "10.26.0.0/24"
+[[locations]]
+name = "27"
+subnet = "10.27.0.0/24"
+[[locations]]
+name = "28"
+subnet = "10.28.0.0/24"
+[[locations]]
+name = "29"
+subnet = "10.29.0.0/24"
+[[locations]]
+name = "30"
+subnet = "10.30.0.0/24"
+[[locations]]
+name = "31"
+subnet = "10.31.0.0/24"
+[[locations]]
+name = "32"
+subnet = "10.32.0.0/24"
